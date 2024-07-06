@@ -79,6 +79,7 @@ def purchaseFurniture():
         else:
             try:
                 furnitureChoiceCasted = int(furnitureChoice)
+                selectedFurniture = []  
                 if furnitureChoiceCasted <= 0 or furnitureChoiceCasted > len(furnitureDetails()):
                     print("Enter an id that is available in the table")
                     continue
@@ -88,18 +89,15 @@ def purchaseFurniture():
             except ValueError:
                 print("❌ Invalid input! Please enter a valid furniture ID. 🪑🔢")
                 continue
-            selectedFurniture = []     
-            for i in range(len(furnitureDetailList)):
-                if int(furnitureDetailList[i]['id']) == furnitureChoiceCasted:
-                    # Creating dictionary for selected furniture
-                    selectedFurniture.append({
-                        "id": furnitureDetailList[i]['id'],
-                        "company": furnitureDetailList[i]['companyName'],
-                        "name": furnitureDetailList[i]['furnitureName'],
-                        "availableQty": furnitureDetailList[i]['qty'],
-                        "selectedQty": None,
-                        "price": furnitureDetailList[i]['price']
-                    })
+            fChoice = furnitureDetailList[furnitureChoiceCasted - 1]
+            selectedFurniture.append({
+                    "id": fChoice['id'],
+                    "company": fChoice['companyName'],
+                    "name": fChoice['furnitureName'],
+                    "availableQty": fChoice['qty'],
+                    "selectedQty": None,
+                    "price": fChoice['price']
+                })
             isValidQuantity = False
             while not isValidQuantity:
                 try:
@@ -145,10 +143,39 @@ def purchaseFurniture():
                         if furnitureChoice.upper() == "EXIT":
                             break
                         else:
-                            try:
-                                furnitureChoice = int(furnitureChoice)
-                            except:
-                                print('Invalid option!! Enter your choice in number only!!')
+                            while True:
+                                try:
+                                    refurnitureChoice = int(furnitureChoice)
+                                    isValueTrue = False
+                                    print(int(selectedFurniture[refurnitureChoice-1]['id']) != refurnitureChoice)
+                                    for elems in furnitureDetailList:
+                                        if int(elems['id']) == refurnitureChoice and float(elems['qty']) != 0.0:
+                                            # Creating dictionary for selected furniture
+                                            selectedFurniture.append({
+                                                "id": elems['id'],
+                                                "company": elems['companyName'],
+                                                "name": elems['furnitureName'],
+                                                "availableQty": elems['qty'],
+                                                "selectedQty": None,
+                                                "price": elems['price']
+                                            })
+                                            isValueTrue = True
+                                    if isValueTrue == False:
+                                        print(f"😔 Sorry to say, but {furnitureDetailList[int(furnitureChoice)-1]['furnitureName'].upper()} is out of stock. However, you can buy other items available! 🛋️🛒")
+                                        break
+                                    else:
+                                        for elems in selectedFurniture:
+                                            if int(elems['id']) == refurnitureChoice:
+                                                addQty = float(input("Enter how much quantity you wanna add >> "))
+                                                if addQty <= float(elems['availableQty']):
+                                                    elems['selectedQty'] = addQty
+                                                    updateFile(selectedFurniture, addQty)
+                                                    break
+                                                else:
+                                                    print(f"❌ {addQty} Quantity is not available. Only {float(elems['availableQty'])} are available in stock.")
+                                except:
+                                    print('Invalid option!! Enter your choice in number only!!')
+                                    break
                     elif afterPurchaseOption == 3:
                         break
                     else:
